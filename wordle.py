@@ -7,7 +7,7 @@ from random import choice
 from typing import Iterable, Union
 from urllib.request import urlopen
 
-from colorama import init, Style, Back
+from colorama import init, Style, Back  # type: ignore
 
 
 class Wordle:
