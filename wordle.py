@@ -4,43 +4,59 @@ Wordle!
 
 import argparse
 from random import choice
-from typing import Iterable
+from typing import Iterable, Union
 from urllib.request import urlopen
 
 from colorama import init, Style, Back
 
 
 class Wordle:
-    def __init__(self, wordlist: Iterable[str]):
+    def __init__(self, wordlist: Iterable[str]) -> None:
+        """
+        Creates a Wordle object from a list of possible 5-letter words.
+        :param wordlist: list of possible words to play Wordle with.
+        """
         self.wordlist = set(wordlist)
 
-    def input_error(self, guess: str) -> str:
+    def random_word(self) -> str:
+        """
+        Retrieve random word from the downloaded list of words.
+        :return: string of random chosen word.
+        """
+        return choice(list(self.wordlist))
+
+    def validate_guess(self, guess: str) -> Union[str, None]:
         """
         Check whether guess is valid.
-        :returns None if the guess is valid, or an error message if it is invalid
+        :param guess: string with the candidate word from the user input.
+        :return: None if the guess is valid, or an error message if it is invalid.
         """
         if len(guess) != 5:
             return "Please enter a 5-letter word"
-        if guess not in self.wordlist:
-            return "Unknown word, try again"
-
-    def random_word(self) -> str:
-        return choice(list(self.wordlist))
-
-    def validate_guess(self, guess: str) -> str:
-        if len(guess) != 5:
-            print("Please enter a 5-letter word")
         elif guess not in self.wordlist:
-            print("Unknown word, try again")
+            return "Unknown word, try again"
+        return None
 
 
 def wordle_from_url(url: str) -> Wordle:
+    """
+    Downloads list of words from the given URL and creates a Wordle object from it.
+    :param url: URL to retrieve the list of words.
+    :return: Wordle object to play the game.
+    """
     words = (line.decode("utf-8").strip()
              for line in urlopen(url))
     return Wordle(words)
 
 
 def color_code_char(character: str, correct: bool, in_word: bool) -> str:
+    """
+    Changes color of the character, depending on if it has been guessed correctly or not.
+    :param character: string indicating the character.
+    :param correct: flag indicating if the character guessed is at the correct place.
+    :param in_word: flag indicating if the character is present in the word.
+    :return: returns the character with its correct color.
+    """
     if correct:
         pre = Back.GREEN
     elif in_word:
@@ -50,7 +66,13 @@ def color_code_char(character: str, correct: bool, in_word: bool) -> str:
     return f"{pre}{character}{Style.RESET_ALL}"
 
 
-def color_code(guess: str, word: str):
+def color_code(guess: str, word: str) -> str:
+    """
+    Gets the correct coloring for the entire word, depending on how well it is guessed by the user.
+    :param guess: string containing the guessed word by the user.
+    :param word: string containing the original word that has to be guessed.
+    :return: string that outputs the guessed word with the correct colors.
+    """
     output = []
     for i, char in enumerate(guess):
         correct = char == word[i]
@@ -59,12 +81,18 @@ def color_code(guess: str, word: str):
     return "".join(output)
 
 
-def play_wordle(wordle: Wordle, word: str):
+def play_wordle(wordle: Wordle, word: str) -> None:
+    """
+    Function to play the Wordle game from the beginning to end.
+    :param wordle: Wordle object that takes care of choosing the word and checking the guesses.
+    :param word: word that has to be guessed.
+    :return: None
+    """
     # Initialize colorama
     init()
     print("Let's play wordle!")
     for attempt in range(1, 7):
-        print(f"Enter your next guess:")
+        print("Enter your next guess:")
         while True:
             guess = input(f"[{attempt}] ")
             error = wordle.validate_guess(guess)
@@ -91,6 +119,10 @@ if __name__ == '__main__':
     parser.add_argument("--language", choices=WORD_LISTS.keys(), default=languages[0])
     parser.add_argument("--spoiler", action="store_true")
     args = parser.parse_args()
+
+    if args.language not in WORD_LISTS:
+        print("Only English words available.")
+
     url = WORD_LISTS[args.language]
     wordle = wordle_from_url(url)
     word = wordle.random_word()
