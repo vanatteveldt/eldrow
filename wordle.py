@@ -37,6 +37,20 @@ class Wordle:
             return "Unknown word, try again"
         return None
 
+    def get_guess(self, prompt: str = ">") -> str:
+        """
+        Get a valid guess from the user
+        :param prompt: The prompt to show the user
+        :return: a valid 5 letter word
+        """
+        while True:
+            guess = input(prompt)
+            error = self.validate_guess(guess)
+            if error:
+                print(error)
+            else:
+                return guess
+
 
 def wordle_from_url(url: str) -> Wordle:
     """
@@ -92,20 +106,13 @@ def play_wordle(wordle: Wordle, word: str) -> None:
     init()
     print("Let's play wordle!")
     for attempt in range(1, 7):
-        print("Enter your next guess:")
-        while True:
-            guess = input(f"[{attempt}] ")
-            error = wordle.validate_guess(guess)
-            if error:
-                print(error)
-            else:
-                break
-
+        guess = wordle.get_guess(f"[{attempt}] ")
         print(color_code(guess, word))
         if word == guess:
             print(f"Congrats! You needed {attempt} attempts")
             break
     else:
+        # look exited without break, so word was not guessed
         print(f"Bad luck! We were looking for {word}")
 
 
