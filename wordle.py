@@ -112,6 +112,7 @@ def play_wordle(wordle: Wordle, word: str) -> None:
             print(f"Congrats! You needed {attempt} attempts")
             break
     else:
+        # look exited without break, so word was not guessed
         print(f"Bad luck! We were looking for {word}")
 
 
