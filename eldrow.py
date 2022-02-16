@@ -25,7 +25,6 @@ for attempt in [1,2,3,4,5,6]:
     elif guess[0] in word:
         output.append(Back.YELLOW)
     output.append(guess[0])
-
     output.append(Style.RESET_ALL)
     if guess[1] == word[1]:
         output.append(Back.GREEN)
