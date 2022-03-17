@@ -6,14 +6,19 @@ from wordle import wordle_from_url, color_code
 pre_correct = Back.GREEN
 pre_somewhere = Back.YELLOW
 
-WORD_LISTS = {
-    "en": "https://raw.githubusercontent.com/jason-chao/wordle-solver/main/english_words_original_wordle.txt"
-}
-url = WORD_LISTS["en"]
-wordle = wordle_from_url(url)
+
+@pytest.fixture
+def wordle():
+    WORD_LISTS = {
+        "en": "https://raw.githubusercontent.com/jason-chao/wordle-solver/main/english_words_original_wordle.txt"
+    }
+    url = WORD_LISTS["en"]
+    return wordle_from_url(url)
+    # Note: can also yield, and then perform cleanup afterwards
+    # Note: Can also place (shared) fixtures in tests/conftest.py which is loaded automatically by pytest
 
 
-def test_picked_word():
+def test_picked_word(wordle):
     word = wordle.random_word()
     assert word
     assert len(word) == 5
@@ -43,7 +48,7 @@ def test_color_code(guess, word, colored):
         1, 5, 10
     ],
 )
-def test_random_word(n):
+def test_random_word(wordle, n):
     words = [wordle.random_word() for _ in range(n)]
     assert len(words) == len(set(words))
 
@@ -60,5 +65,5 @@ def test_random_word(n):
         ("hahahahaha", "Please enter a 5-letter word")
     ],
 )
-def test_validate_guess(guess, outcome):
+def test_validate_guess(wordle, guess, outcome):
     assert wordle.validate_guess(guess) == outcome
